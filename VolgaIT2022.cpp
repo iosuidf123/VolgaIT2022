@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <fstream>
 #include <array>
 #include <list>
@@ -137,11 +137,22 @@ int main() {
 
     // Если они неожиданно встретились. Здесь строится путь, выводится он. 
     if (meet) {
-        
+        array<array<char, 10>, 10> map = compound_map(Ivan, Elena, Ivans_position, Elenas_position);
+        ofstream file("./map.txt");
+
+        for (int i = 0; i < 10; i++) {
+            for (int j = 0; j < 10; j++) {
+                if (map[i][j] == ',')
+                    map[i][j] = '.';
+
+                file << map[i][j];
+            }
+            file << endl;
+        }
     }
     // Если они не встретились и они обошли, все, что возможно.
     // Если локальные карты совпадают, то выводятся карты.
-    if (comparison_maps(Elena, Elena)) {
+    else if (comparison_maps(Elena, Elena)) {
 
         array<array<char, 10>, 10> map = generate_map(Ivan, Elena);
 
@@ -457,8 +468,147 @@ array<array<char, 10>, 10> compound_map(const array<array<char, 30>, 30>& first,
     array<array<char, 30>, 30> tmp;
     for (int i = 0; i < 30; i++) {
         for (int j = 0; j < 30; j++) {
+            tmp[i][j] = '?';
+        }
+    }
+    int Ivan_min_X = 30;
+    int Ivan_max_X = -1;
+    int Ivan_min_Y = 30;
+    int Ivan_max_Y = -1;
 
+    int Elena_min_X = 30;
+    int Elena_max_X = -1;
+    int Elena_min_Y = 30;
+    int Elena_max_Y = -1;
+
+    for (int i = 0; i < 30; i++) {
+        for (int j = 0; j < 30; j++) {
+            if (first[i][j] == '#') {
+                if (Ivan_min_X > j)
+                    Ivan_min_X = j;
+                if (Ivan_max_X < j)
+                    Ivan_max_X = j;
+                if (Ivan_min_Y > i)
+                    Ivan_min_Y = i;
+                if (Ivan_max_Y < i)
+                    Ivan_max_Y = i;
+            }
+            if (second[i][j] == '#') {
+                if (Elena_min_X > j)
+                    Elena_min_X = j;
+                if (Elena_max_X < j)
+                    Elena_max_X = j;
+                if (Elena_min_Y > i)
+                    Elena_min_Y = i;
+                if (Elena_max_Y < i)
+                    Elena_max_Y = i;
+            }
         }
     }
 
+    for (int i = Ivan_min_X; i <= first_position.x; i++) {
+        for (int j = Ivan_min_Y; j <= first_position.y; j++) {
+            tmp[15 + j - Ivan_min_Y][15 + i - Ivan_min_X] = first[j][i];
+        }
+        for (int j = Ivan_max_Y; j >= first_position.y; j--) {
+            tmp[15 + j - Ivan_min_Y][15 + i - Ivan_min_X] = first[j][i];
+        }
+    }
+
+    for (int i = Ivan_max_X; i >= first_position.x; i--) {
+        for (int j = Ivan_min_Y; j <= first_position.y; j++) {
+            tmp[15 + j - Ivan_min_Y][15 + i - Ivan_min_X] = first[j][i];
+        }
+        for (int j = Ivan_max_Y; j >= first_position.y; j--) {
+            tmp[15 + j - Ivan_min_Y][15 + i - Ivan_min_X] = first[j][i];
+        }
+    }
+
+    for (int i = Elena_min_X; i <= second_position.x; i++) {
+        for (int j = Elena_min_Y; j <= second_position.y; j++) {
+            if(tmp[15 + j - Elena_min_Y][15 + i - Elena_min_X] == '?' || second[j][i] == '&')
+                tmp[15 + j - Elena_min_Y][15 + i - Elena_min_X] = second[j][i];
+        }
+        for (int j = Elena_max_Y; j >= second_position.y; j--) {
+            if (tmp[15 + j - Elena_min_Y][15 + i - Elena_min_X] == '?' || second[j][i] == '&')
+                tmp[15 + j - Elena_min_Y][15 + i - Elena_min_X] = second[j][i];
+        }
+    }
+
+    for (int i = Elena_max_X; i >= second_position.x; i--) {
+        for (int j = Elena_min_Y; j <= second_position.y; j++) {
+            if (tmp[15 + j - Elena_min_Y][15 + i - Elena_min_X] == '?' || second[j][i] == '&')
+                tmp[15 + j - Elena_min_Y][15 + i - Elena_min_X] = second[j][i];
+        }
+        for (int j = Elena_max_Y; j >= second_position.y; j--) {
+            if (tmp[15 + j - Elena_min_Y][15 + i - Elena_min_X] == '?' || second[j][i] == '&')
+                tmp[15 + j - Elena_min_Y][15 + i - Elena_min_X] = second[j][i];
+        }
+    }
+
+    for (int i = Ivan_min_X; i <= first_position.x; i++) {
+        for (int j = Ivan_min_Y; j <= first_position.y; j++) {
+            if(first[j][i] == '@')
+                tmp[15 + j - Ivan_min_Y][15 + i - Ivan_min_X] = first[j][i];
+        }
+        for (int j = Ivan_max_Y; j >= first_position.y; j--) {
+            if (first[j][i] == '@')
+                tmp[15 + j - Ivan_min_Y][15 + i - Ivan_min_X] = first[j][i];
+        }
+    }
+
+    for (int i = Ivan_max_X; i >= first_position.x; i--) {
+        for (int j = Ivan_min_Y; j <= first_position.y; j++) {
+            if (first[j][i] == '@')
+                tmp[15 + j - Ivan_min_Y][15 + i - Ivan_min_X] = first[j][i];
+        }
+        for (int j = Ivan_max_Y; j >= first_position.y; j--) {
+            if (first[j][i] == '@')
+                tmp[15 + j - Ivan_min_Y][15 + i - Ivan_min_X] = first[j][i];
+        }
+    }
+
+
+
+    int min_X = 30;
+    int max_X = -1;
+    int min_Y = 30;
+    int max_Y = -1;
+
+    for (int i = 0; i < 30; i++) {
+        for (int j = 0; j < 30; j++) {
+            if (tmp[i][j] == '#' || tmp[i][j] == ',' || tmp[i][j] == '@' || tmp[i][j] == '&') {
+                if (min_X > j)
+                    min_X = j;
+                if (max_X < j)
+                    max_X = j;
+                if (min_Y > i)
+                    min_Y = i;
+                if (max_Y < i)
+                    max_Y = i;
+            }
+        }
+    }
+
+    int width = max_X - min_X + 1;
+    int height = max_Y - min_Y + 1;
+
+    array<array<char, 10>, 10> map;
+
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
+            map[i][j] = '?';
+        }
+    }
+
+
+    for (int i = 1; i < height - 1; i++) {
+        for (int j = 1; j < width - 1; j++) {
+            map[i - 1][j - 1] = tmp[min_Y + i][min_X + j];
+        }
+    }
+
+
+
+    return map;
 }
