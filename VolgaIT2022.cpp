@@ -14,6 +14,7 @@ using std::vector;
 using std::stack;
 using std::list;
 using std::find;
+using std::reverse;
 using std::cout;
 using std::endl;
 using std::ofstream;
@@ -126,7 +127,7 @@ int main() {
 
 
     // Здесь происходит ходьба, заполнение локальных карт, путей их.
-    while (!meet && !Ivans_way.empty() && !Elenas_way.empty()) {
+    while (!Ivans_way.empty() && !Elenas_way.empty()) {
 
         //Проверка на возможность передвижения
         checkWay(Character::Ivan, Ivan, Ivans_position, world);
@@ -678,41 +679,44 @@ list<Point> find_way(const array<array<char, 10>, 10>& arr) {
         }
     }
 
-    vector<vector<int>> ways;
+    vector<vector<list<int>>> ways;
     ways.resize(n);
     for (int i = 0; i < n; i++)
         ways[i].resize(n);
 
+    way.clear();
 
     for (int i = 0; i < n; i++) {
         vector<vector<int>> w1;
+        vector<vector<list<int>>> ways1;
         w1.resize(n);
+        ways1.resize(n);
         for (int j = 0; j < n; j++) {
             w1[j].resize(n);
+            ways1[j].resize(n);
         }
         for (int j = 0; j < n; j++) {
             for (int k = 0; k < n; k++) {
                 if (w[j][i] + w[i][k] < w[j][k]) {
                     w1[j][k] = w[j][i] + w[i][k];
-                    ways[j][k] = i;
+                    ways1[j][k] = ways[j][i];
+                    ways1[j][k].push_back(i);
+                    for (auto c : ways[i][k]) {
+                        ways1[j][k].push_back(c);
+                    }
                 }
                 else {
                     w1[j][k] = w[j][k];
+                    ways1[j][k] = ways[j][k];
                 }
             }
         }
-        cout << i << endl;
         w = w1;
+        ways = ways1;
     }
 
-    cout << endl;
-    for (int i = fi; i != st;) {
-        way.push_front(points[ways[st][i]]);
-        i = ways[st][i];
-    }
-
-    for (auto c : way) {
-        cout << c.x << " " << c.y << endl;
+    for (auto i = ways[st][fi].begin(); i != ways[st][fi].end(); i++) {
+        way.push_back(points[*i]);
     }
 
     return way;
