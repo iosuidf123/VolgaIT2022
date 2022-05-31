@@ -4,11 +4,13 @@
 #include <list>
 #include <stack>
 #include <clocale>
+#include <vector>
 
 #include "fairy_tail.hpp"
 
 
 using std::array;
+using std::vector;
 using std::stack;
 using std::list;
 using std::find;
@@ -77,7 +79,7 @@ bool isolation(const array<array<char, 30>, 30>& arr);
 /*
     Функция будет искать кратчайший путь и возвращать путь по координатам.
 */
-list<int, int> find_way(const array<array<char, 10>, 10>& arr);
+list<Point> find_way(const array<array<char, 10>, 10>& arr);
 
 int main() {
 
@@ -156,6 +158,8 @@ int main() {
 
         array<array<char, 10>, 10> map = generate_map(Ivan, Elena);
 
+        list<Point> way = find_way(map);
+
         ofstream file("./map.txt");
 
         for (int i = 0; i < 10; i++) {
@@ -167,6 +171,9 @@ int main() {
             }
             file << endl;
         }
+
+        
+        
     }
     // Они не встретились. Выводится карта Ивана
     else {
@@ -611,4 +618,103 @@ array<array<char, 10>, 10> compound_map(const array<array<char, 30>, 30>& first,
 
 
     return map;
+}
+
+list<Point> find_way(const array<array<char, 10>, 10>& arr) {
+
+    list<Point> way;
+
+    int n = 0;
+    vector<Point> points;
+    Point Ivan_position;
+    Point Elena_position;
+    Point tmp;
+    Point tmp1;
+    for (int i = 0; i < 10; i++) {
+        for (int j = 0; j < 10; j++) {
+            if (arr[i][j] == ',' || arr[i][j] == '@' || arr[i][j] == '&') {
+                n++;
+                tmp.x = j;
+                tmp.y = i;
+                points.push_back(tmp);
+            }
+            if (arr[i][j] == '@') {
+                Ivan_position = tmp;
+            }
+            if (arr[i][j] == '&') {
+                Elena_position = tmp;
+            }
+            
+        }
+    }
+    
+    int st = find(points.begin(), points.end(), Ivan_position) - points.begin();
+    int fi = find(points.begin(), points.end(), Elena_position) - points.begin();
+    
+    way.push_front(points[fi]);
+
+    if (points[st].x - points[fi].x == 0 && abs(points[st].y - points[fi].y) == 1 || abs(points[st].x - points[fi].x) == 1 && points[st].y - points[fi].y == 0) {
+        return way;
+    }
+
+    vector<vector<int >> w;
+    w.resize(n);
+    for (int i = 0; i < n; i++)
+        w[i].resize(n);
+    
+
+
+    for (int i = 0; i < n; i++) {
+        tmp = points[i];
+        for (int j = 0; j < n; j++) {
+            w[i][j] = 20000;
+            if (i == j)
+                w[i][j] = 0;
+            else
+                tmp1 = points[j];
+
+            if (tmp.x - tmp1.x == 0 && abs(tmp.y - tmp1.y) == 1 || abs(tmp.x - tmp1.x) == 1 && tmp.y - tmp1.y == 0)
+                w[i][j] = 1;
+        }
+    }
+
+    vector<vector<int>> ways;
+    ways.resize(n);
+    for (int i = 0; i < n; i++)
+        ways[i].resize(n);
+
+    //Где-то здесь ошибка
+    for (int i = 0; i < n; i++) {
+        vector<vector<int>> w1;
+        w1.resize(n);
+        for (int j = 0; j < n; j++) {
+            w1[j].resize(n);
+        }
+        for (int j = 0; j < n; j++) {
+            for (int k = 0; k < n; k++) {
+                if (w[j][i] + w[i][k] < w[j][k]) {
+                    w1[j][k] = w[j][i] + w[i][k];
+                    ways[j][k] = i;
+                }
+                else {
+                    w1[j][k] = w[j][k];
+                }
+            }
+        }
+        cout << i << endl;
+        w = w1;
+    }
+
+    cout << endl;
+    for (int i = fi; i != st;) {
+        way.push_front(points[ways[st][i]]);
+        i = ways[st][i];
+    }
+
+    for (auto c : way) {
+        cout << c.x << " " << c.y << endl;
+    }
+
+    return way;
+    
 }
