@@ -683,7 +683,7 @@ list<Point> find_way(const array<array<char, 10>, 10>& arr) {
     for (int i = 0; i < n; i++)
         ways[i].resize(n);
 
-    //Где-то здесь ошибка
+
     for (int i = 0; i < n; i++) {
         vector<vector<int>> w1;
         w1.resize(n);
