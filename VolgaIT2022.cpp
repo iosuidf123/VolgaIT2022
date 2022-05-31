@@ -127,7 +127,7 @@ int main() {
 
 
     // Здесь происходит ходьба, заполнение локальных карт, путей их.
-    while (!Ivans_way.empty() && !Elenas_way.empty()) {
+    while (!meet && !Ivans_way.empty() && !Elenas_way.empty()) {
 
         //Проверка на возможность передвижения
         checkWay(Character::Ivan, Ivan, Ivans_position, world);
@@ -152,6 +152,7 @@ int main() {
             }
             file << endl;
         }
+        cout << "Они встретились" << endl;
     }
     // Если они не встретились и они обошли, все, что возможно.
     // Если локальные карты совпадают, то выводятся карты.
@@ -173,8 +174,30 @@ int main() {
             file << endl;
         }
 
-        
-        
+        for (auto i = way.begin(); i != way.end();) {
+            Point first = *i;
+            Point second = *(i++);
+
+            if (first.x - second.x == -1) {
+                meet = world.go(Direction::Right, Direction::Pass);
+            }
+            else if (first.x - second.x == 1) {
+                meet = world.go(Direction::Left, Direction::Pass);
+            }
+            else if (first.y - second.y == 1) {
+                meet = world.go(Direction::Up, Direction::Pass);
+            }
+            else if (first.y - second.y == -1) {
+                meet = world.go(Direction::Down, Direction::Pass);
+            }
+
+        }
+        if (meet) {
+            cout << "Они встретились" << endl;
+        }
+        else {
+            cout << "Они не встретились" << endl;
+        }
     }
     // Они не встретились. Выводится карта Ивана
     else {
@@ -192,6 +215,8 @@ int main() {
             }
             file << endl;
         }
+
+        cout << "Они не встретились" << endl;
     }
     return 0;
 }
@@ -652,8 +677,10 @@ list<Point> find_way(const array<array<char, 10>, 10>& arr) {
     int st = find(points.begin(), points.end(), Ivan_position) - points.begin();
     int fi = find(points.begin(), points.end(), Elena_position) - points.begin();
     
-    way.push_front(points[fi]);
 
+    way.push_front(points[fi]);
+    way.push_front(points[st]);
+  
     if (points[st].x - points[fi].x == 0 && abs(points[st].y - points[fi].y) == 1 || abs(points[st].x - points[fi].x) == 1 && points[st].y - points[fi].y == 0) {
         return way;
     }
@@ -718,6 +745,7 @@ list<Point> find_way(const array<array<char, 10>, 10>& arr) {
     for (auto i = ways[st][fi].begin(); i != ways[st][fi].end(); i++) {
         way.push_back(points[*i]);
     }
+    way.push_front(points[st]);
 
     return way;
     
